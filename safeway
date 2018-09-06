@@ -1,0 +1,88 @@
+import PyPDF2
+import pandas as pd
+import os
+import re
+import time
+from tabula import convert_into
+from tabula import convert_into_by_batch
+from tabula import read_pdf
+
+convert_into('C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/D62537-00_1877_USSA_Amendment.pdf', 'D62537-00_1877_USSA_Amendment.csv', outputformat= 'csv', pages='all')
+
+# Reading in .csv and saving as .xlsx
+df = pd.read_csv('C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/D62537-00_1877_USSA_Amendment.csv', encoding = "ISO-8859-1", names=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'])
+writer = pd.ExcelWriter('D62537-00_1877_USSA_Amendment.xlsx',  engine='xlsxwriter')
+df.to_excel(writer, index = False,  header=None)
+writer.save()
+
+#converting excel tables into seperate tabs in excel
+df_ex = pd.read_csv("C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/D62537-00_1877_USSA_Amendment.csv",
+encoding = "ISO-8859-1", names=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'])
+df_ex.head()
+
+df_ex.shape
+len(df_ex.index)
+df_ex.iloc[0,0]
+lp=[]
+lh= ['AT&T CORP. (Customer Signatory)', 'Parties', 'Charge Type','Rate (USD)',
+'Connection Speed','Geographic Type','Country Location A','Country Location Z','Rate Tier',
+'Product Description','Contract Term','Country','Customer Handoff','Access Provider','VzB Lit Status','Technology',
+'Operational Performance Level','Application Performance Level','UNI Speed','Access Speed',
+'Legacy TPV Product Description']
+
+df_ex.iloc[0,0]
+lp=[]
+
+for i in range(len(df_ex.index)):
+    for j in range(len(df_ex.columns)):
+        for k in range(len(lh)):
+            if str(df_ex.iloc[i,j]).lower() == lh[k].lower():
+                print(df_ex.iloc[i,j])
+                #print(i)
+                print(i,j)
+                lp.append(i)
+lp.append(len(df_ex.index))
+print(lp)
+df_ex.iloc[0:1,0:1]
+len(lp)
+print(range(12))
+
+df_ex.iloc[1:2,0:1]
+df_ex.iloc[19:20, 0:1]
+df_ex.iloc[45:46, 0:1]
+df_ex.iloc[5394:5395, 0:1]
+
+len(lp)
+
+lpf = []
+for i in range(len(lp)):
+    try:
+        if lp[i+1]- lp[i]==1:
+            lp.remove(lp[i+1])
+        else:
+            lpf.append(lp[i])
+    except IndexError:
+        print('IndexError')
+        #lpff.append(lpf[i])
+
+lpf.append(lp[len(lp)-1])
+lpfinal1 = list(set(lpf))
+lpfinal = sorted(lpfinal1, key=int)
+
+print(lpf)
+print(lpfinal)
+
+len(lpfinal)
+
+
+import re
+from string import digits
+writer = pd.ExcelWriter('D62537-00_1877_tab.xlsx', engine='xlsxwriter')
+for z in range(len(lpfinal)-1):
+    #print(df_exf.iloc[lpf[z]:lpf[z+1],0:len(df_ex.columns)])
+    dfwf= df_ex.iloc[lpfinal[z]:lpfinal[z+1],0:len(df_ex.columns)]
+    name = re.sub("[^a-zA-Z]"," ", str(df_ex.iloc[lpfinal[z]:lpfinal[z]+1, 0:1]).translate(str.maketrans('', '', digits)).strip())
+    #translate(str.maketrans('', '', digits)).strip()
+    print(name[0:28], z)
+    dfwf.to_excel(writer, sheet_name= str(name[:28])+str(z), index=False, header=None)
+    #print(dfwf.dropna(axis=1, how='all'))
