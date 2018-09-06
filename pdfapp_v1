@@ -1,0 +1,138 @@
+# Code Version: v1.2, Owner/Developer:Keerthi Mitta
+print('Code Version: v1.2')
+print('Owner/Developer:Keerthi Mitta')
+'''from flask import Flask, render_template
+app = Flask(__name__)
+
+@app.route('/myapp')
+def render():
+    return render_template('pdffile.html')
+
+if __name__=='__main__':
+    app.run(debug=True, port=3134)
+
+
+
+
+def upload_file():
+    form = ReusableForm1(request.form)
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('upload_file', filename=filename))
+            flash('File Uploaded Successfully!')
+    return render_template('pdffile1.html', form=form)
+
+'''
+from flask import Flask, render_template, flash, request, redirect, url_for
+from flask import send_from_directory
+from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
+from tabula import convert_into_by_batch
+import os
+import time
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs'
+ALLOWED_EXTENSIONS = set(['pdf'])
+
+# App config.
+DEBUG = True
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config.from_object(__name__)
+app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
+
+
+class ReusableForm(Form):
+    #name1 = TextField('Upload:', validators=[validators.required()])
+    Upload = SubmitField('Upload')
+    name = TextField('Extract:', validators=[validators.required()])
+    Extract = SubmitField('Extract')
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def download_file(filename):
+    return send_from_directory(dir, filename, as_attachment=True)
+
+@app.route("/keerthi.mitta/verizon-pdfConv", methods=['GET', 'POST'])
+def pdfcon():
+    files=[]
+    print(request.method)
+    form = ReusableForm(request.form)
+
+    if request.method == 'POST':
+        if request.form.get('Upload') == 'Upload':
+            # check if the post request has the file part
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+            # if user does not select file, browser also
+            # submit an empty part without filename
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                return redirect(url_for('pdfcon', filename=filename))
+        elif request.form.get('Extract') == 'Extract':
+            print( form.errors)
+            path = 'C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/'
+            dir= 'C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs'
+            for filep in os.listdir(path):
+                if filep.endswith(".pdf"):
+                    filep=filep
+                    flash('Extracted rate tables from ' + filep +' to excel.')
+            convert_into_by_batch(dir, output_format='csv', pages='all')
+            #name=request.form['name']
+            #name1=request.form['name1']
+            for file1 in os.listdir(path):
+                if file1.endswith(".csv"):
+                    files.append(file1)
+                    filec = file1.strip('.csv')
+                    #flash('Extracted rate tables from ' + filec +' to excel.')
+                    #download_file(file1)
+                    return send_from_directory(dir, file1, as_attachment=True)
+                    #time.sleep(5)
+            #print(name)
+            #print(name1)
+            print(files)
+            if form.validate():
+                # Save the comment here.
+                for filep in os.listdir(path):
+                    if filep.endswith(".pdf"):
+                        filep=filep
+                        flash('Extracted rate tables from '+ '"' + filep + '"' +' to excel.')
+                '''for file1 in os.listdir(path):
+                    if file1.endswith(".csv"):
+                        files.append(file1)
+                        filename1 = path+file1
+                        #download_file(file1)
+                        send_from_directory(dir, file1, as_attachment=True)
+                        time.sleep(5)'''
+            else:
+                flash('All the form fields are required. ')
+        else:
+            return render_template('pdffile.html', form=form)
+    elif request.method == 'GET':
+        print("No Post Back Call")
+    return render_template("pdffile.html", form=form)
+if __name__ == "__main__":
+    #app.run()
+    #app.debug = True
+    app.run(debug = True, host= '152.182.208.222')
