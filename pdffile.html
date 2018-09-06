@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC >
+
+<html>
+    <head>
+        <title>Rate-Table Extractor</title>
+       <link rel="stylesheet" media="screen" href ="static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+       <link rel="stylesheet" href="static/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+       <meta name="viewport" content = "width=device-width, initial-scale=1.0">
+       <style>
+       h2 {
+          display: block;
+          font-size: 1.7em;
+          margin-top: 0.67em;
+          margin-bottom: 0.67em;
+          margin-left: 0;
+          margin-right: 0;
+          font-weight: bold;
+          color: black;
+          }
+      h6 {
+          display: block;
+          font-size: 1.1em;
+          margin-top: 1em;
+          margin-bottom: 1em;
+          margin-left: 0;
+          margin-right: 0;
+          font-weight: bold;
+          color: green;
+          }
+      </style>
+    </head>
+    <body>
+
+
+<div class="container">
+
+
+  <form method=post enctype=multipart/form-data>
+    <table width="450px" height="200" >
+      <tr height = "50">
+          <h2>Verizon Contracts: Rate-Table Extractor</h2>
+        </tr>
+      <tr height="10">
+          <h6>1. Upload a contract(pdf) file</h6>
+        </tr>
+      <tr height="10">
+        <div>
+          <label>Browse for a contract, then click on Upload.</label>
+        </div>
+      </tr>
+      <tr height ="15">
+        <input type=file name=file>
+    <input type=submit value=Upload name="Upload">
+  </tr>
+
+  </form>
+<tr height = "10">
+  <h6>2. Extract rate tables from a contract(pdf) file to excel</h6>
+</tr>
+  <form  action="" method="post" role="form">
+    <div class="form-group">
+      <label>Click on </label>
+      <input type=submit value=Extract name="Extract">
+    </div>
+    <label>Once the process is completed, excel file will be available as a downloadable file.</label>
+  </form>
+</table>
+  <br>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+
+        {% for message in messages %}
+            {% if "Error" not in message[1]: %}
+                <div class="alert alert-info">
+                <strong>Success! </strong> {{ message[1] }}
+                </div>
+            {% endif %}
+
+            {% if "Error" in message[1]: %}
+                <div class="alert alert-warning">
+                {{ message[1] }}
+                </div>
+            {% endif %}
+        {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+</div>
+<br>
+</div>
+</div>
+</body>
+</html>
