@@ -1,0 +1,110 @@
+
+# Code Version: v1.0, Developer:Keerthi
+import os
+from comtypes import client
+import subprocess
+file = '10DCOV.pdf'
+path = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/"
+try:
+  abspath = os.path.join(path, file)
+  #subprocess.call('lowriter --invisible --convert-to docx "{}"'.format(abspath), shell=True)
+  subprocess.call('libreoffice  --invisible -convert-to docx "{}"'.format(abspath), shell=True)
+except Exception as e:
+  print("Internal Error has occured. Please contact IT administrator.")
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # Code Version: v2.7, Developer:Keerthi Mitta
+print('Code Version: v2.7')
+print('Developer:Keerthi Mitta')
+from tabula import convert_into_by_batch
+import os, time, csv
+import pandas as pd, errno, re
+#from comtypes import client
+import subprocess
+
+#PDFtoWord Converter
+def convert_pdf_to_word(file):
+    print(file)
+    path = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/"
+    try:
+        abspath = os.path.join(path, file)
+        subprocess.call('lowriter --invisible --convert-to doc "{}"'.format(abspath), shell=True)
+        return(file)
+    except Exception as e:
+        print("Internal Error has occured. Please contact IT administrator.")
+
+#WordtoPDF Converter
+def convert_word_to_pdf(file):
+    print('w',file)
+    path = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/"
+    path1 = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/word-pdfs/"
+    try:
+        word = client.DispatchEx("Word.Application")
+        new_file = path1 + file.replace(".docx", r"word.pdf")
+        in_file = path + file
+        src= os.path.abspath(in_file)
+        print(src, new_file)
+        doc = word.Documents.Open(src)
+        print('open')
+        doc.SaveAs(new_file, FileFormat = 17)
+        print('Save')
+        doc.Close()
+    except Exception as e:
+        print("Internal Error has occured. Please contact IT administrator.")
+    finally:
+        word.Quit()
+
+#PDF2CSV converter function
+def pdfconv(dirc):
+    return convert_into_by_batch(dirc, output_format='csv', pages='all', multiple_tables=True)
+
+#check csv row count
+def csv_rows(file):
+    with open(file) as f:
+        csv_reader = csv.reader(f, delimiter = ",")
+        data = list(csv_reader)
+        row_count = len(data)
+    return(row_count)
+
+def main():
+    dirc = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs"
+    pdfconv(dirc)
+    time.sleep(2)
+    path = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/"
+    for file in os.listdir(path):
+        if file.endswith(".csv"):
+            in_file = path+file
+            file1 = file.strip(".csv")
+            row_count = csv_rows(in_file)
+            if row_count < 20:
+                print("File " + file1 + " is not in an acceptable format for the system to process Rate-Table extraction. We will work on it and get back to you shortly.")
+                convert_word_to_pdf(convert_pdf_to_word(file))
+                time.sleep(2)
+                dir = "C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs/word-pdfs"
+                pdfconv(dir)
+                time.sleep(2)
+                for file in os.listdir(dir):
+                    if file.endswith(".csv"):
+                        in_file = dir+'/'+file
+                        file1 = file.strip(".csv")
+                        row_count = csv_rows(in_file)
+                        if row_count < 20:
+                            print("File " + file1 + " is not in an acceptable format for the system to process Rate-Table extraction. We will work on it and get back to you shortly.")
+                        else:
+                            print("Success! Excel version for " + file1 + " will be emailed to you shortly.")
+            else:
+                print("Success! Excel version for " + file1 + " will be emailed to you shortly.")
+#calling main
+main()
+
