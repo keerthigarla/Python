@@ -1,0 +1,63 @@
+'''import requests
+from bs4 import BeautifulSoup
+import numpy as np
+import sys
+docn = 1207936
+url = 'https://contractviewer.verizon.com/CVDocumentView.do?documentNbr=' + docn
+r= requests.get(url)
+content = r.content
+soup = BeautifulSoup(content, "html.parser")
+print(soup)
+
+#x = soup.find('table', cellpadding = '2')
+'''
+
+import pandas as pd
+import os
+import re
+import time
+import numpy as np
+from selenium import webdriver
+import requests
+import selenium.webdriver.chrome.service as service
+
+def download_pdf(*docs):
+    options = webdriver.ChromeOptions()
+    download_dir = "C:/Users/MITTKE5/Downloads"
+    chromedriver = "C:\\Users\\MITTKE5\\Downloads\\chromedriver.exe"
+    browser = webdriver.Chrome(chromedriver,  chrome_options = options)
+
+
+    options.add_experimental_option('prefs', {
+            "plugins.plugins_list": [{"enabled": False,
+                                      "name": "Chrome PDF Viewer"}],
+            "download": {
+                "prompt_for_download": False,
+                "default_directory": download_dir
+            }
+        })
+    docn = []
+    for value in docs:
+        docn.append(str(value))
+    for i in range(len(docn)):
+        url = 'https://contractviewer.verizon.com/CVDocumentView.do?documentNbr=' + docn[i]
+        browser.get(url)
+        time.sleep(10) # Let the user actually see something!
+
+        download_link = url  # browser.current_url might be interesting, too
+        print("Download link: {}".format(download_link))
+        session = requests.Session()
+        cookies = browser.get_cookies()
+
+        for cookie in cookies:
+            session.cookies.set(cookie['name'], cookie['value'])
+        response = session.get(download_link)
+        out =  docn[i]+'_pdf.pdf'
+        #path = os.path.abspath(out)
+        path = 'C:\\Users\\MITTKE5\\Desktop\\hackathon\\Contracts\\PDFs\\Contract App\\' + out
+        print(path)
+        with open(path, "wb") as f:
+            f.write(response.content)
+        print("Written to {}".format(path))
+
+#download_pdf(2179108, 1207936)
