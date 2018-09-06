@@ -1,0 +1,83 @@
+from flask import Flask, render_template, flash, request, redirect, url_for
+from flask import send_from_directory
+from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField
+from tabula import convert_into_by_batch
+import os
+import time
+import Contract_Scr as cs
+import contract_rate_table2.py as crt
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'C:/Users/MITTKE5/Desktop/hackathon/Contracts/PDFs/pdfs'
+ALLOWED_EXTENSIONS = set(['pdf'])
+
+# App config.
+DEBUG = True
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config.from_object(__name__)
+app.config['SECRET_KEY'] = '7d441f27d441f27567d441f2b6176a'
+
+
+class ReusableForm(Form):
+    #name1 = TextField('Upload:', validators=[validators.required()])
+    Upload = SubmitField('Upload')
+    name = TextField('Extract:', validators=[validators.required()])
+    Extract = SubmitField('Extract')
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def download_file(filename):
+    return send_from_directory(dir, filename, as_attachment=True)
+
+@app.route("/keerthi.mitta/verizon-contracts", methods=['GET', 'POST'])
+def pdfcon():
+    files=[]
+    print(request.method)
+    form = ReusableForm(request.form)
+
+    if request.method == 'POST':
+        if request.form.get('Submit') == 'Submit':
+            # check if the post request has the file part
+            print( form.errors)
+            name=request.form['name']
+            print( name)
+            cs.download_pdf(name)
+            '''if form.validate():
+                # Save the comment here.
+                flash('Converted ' + name + ' files')
+            else:
+                flash('All the form fields are required. ')
+        else:
+            return render_template('c_pdffile.html', form=form)'''
+        elif request.form.get('Extract') == 'Extract':
+            print( form.errors)
+            crt.main()
+            #print(name)
+            #print(name1)
+            print(files)
+            if form.validate():
+                # Save the comment here.
+                for filep in os.listdir(path):
+                    if filep.endswith(".pdf"):
+                        filep=filep
+                        flash('Extracted rate tables from '+ '"' + filep + '"' +' to excel.')
+                '''for file1 in os.listdir(path):
+                    if file1.endswith(".csv"):
+                        files.append(file1)
+                        filename1 = path+file1
+                        #download_file(file1)
+                        send_from_directory(dir, file1, as_attachment=True)
+                        time.sleep(5)'''
+            else:
+                flash('All the form fields are required. ')
+        else:
+            return render_template('c_pdffile.html', form=form)
+    elif request.method == 'GET':
+        print("No Post Back Call")
+    return render_template("c_pdffile.html", form=form)
+if __name__ == "__main__":
+    app.run()
